@@ -11,11 +11,14 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout latest code
         uses: actions/checkout@v4
+
+      - name: Check Docker engine
+        run: docker info
 
       - name: Build Ionic image
         run: docker build -t user-crud:latest .
@@ -25,22 +28,20 @@ jobs:
         continue-on-error: true
 
       - name: Start updated container
-        run: docker run -d --name user-crud --restart unless-stopped -p 8100:8100 user-crud:latest
+        run: docker run -d --name user-crud --restart unless-stopped -p 8100:80 user-crud:latest
 
       - name: Verify app
-        shell: powershell
+        shell: bash
         run: |
-          $success = $false
-          for ($i = 1; $i -le 15; $i++) {
-            try {
-              Invoke-WebRequest http://localhost:8100/ -UseBasicParsing -TimeoutSec 2 | Out-Null
-              $success = $true
+          success=false
+          for i in {1..15}; do
+            if curl --fail --silent --show-error --max-time 2 http://localhost:8100/ > /dev/null; then
+              success=true
               break
-            } catch {
-              Start-Sleep -Seconds 2
-            }
-          }
-          if (-not $success) {
+            fi
+            sleep 2
+          done
+          if [ "${success:-false}" != true ]; then
             docker logs user-crud
             exit 1
-          }
+          fi
