@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "khyyyy23/docker",
+  "pipelineDirectory": "docker",
+  "workspaceDirectory": "docker\\docker",
+  "repositories": {
+    "khyyyy23/docker": {
+      "repositoryPath": "docker\\docker",
+      "lastRunOn": "10/28/2026 13:19:55 +08:00"
+    }
+  },
+  "lastRunOn": "10/28/2026 13:19:55 +08:00"
+}
